@@ -1,3 +1,0 @@
-[submodule "inst/include/seqtk"]
-	path = inst/include/seqtk
-	url = https://github.com/lh3/seqtk
