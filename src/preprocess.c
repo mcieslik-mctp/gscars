@@ -28,10 +28,14 @@ void count_barcodes(BarcodeDict *bcdict, FILE *fq)
 	char qual1[BUF_SIZE];
 	barcode[BC_LEN] = '\0';
 
+        char *ret;
 	while (fgets(id1, BUF_SIZE, fq)) {
-		assert(fgets(read1, BUF_SIZE, fq));
-		assert(fgets(sep1, BUF_SIZE, fq));
-		assert(fgets(qual1, BUF_SIZE, fq));
+               ret = fgets(read1, BUF_SIZE, fq);
+               assert(ret != NULL);
+	       ret = fgets(sep1, BUF_SIZE, fq);
+               assert(ret != NULL);
+	       ret = fgets(qual1, BUF_SIZE, fq);
+               assert(ret != NULL);
 
 		for (size_t i = 0; i < BC_LEN; i++) {
 			if (IS_ACGT(read1[i])) {
@@ -224,10 +228,14 @@ void preprocess_fastqs(const char *cts, const char *inp, const char *out)
   barcode[BC_LEN] = '\0';
   barcode_qual[BC_LEN] = '\0';
 
+  char *ret;
   while (fgets(id1, BUF_SIZE, inp_file)) {
-    assert(fgets(read1, BUF_SIZE, inp_file));
-    assert(fgets(sep1, BUF_SIZE, inp_file));
-    assert(fgets(qual1, BUF_SIZE, inp_file));
+         ret = fgets(read1, BUF_SIZE, inp_file);
+         assert(ret != NULL);
+         ret = fgets(sep1, BUF_SIZE, inp_file);
+         assert(ret != NULL);
+         ret = fgets(qual1, BUF_SIZE, inp_file);
+         assert(ret != NULL);
 
     trim_after_space(id1);
 

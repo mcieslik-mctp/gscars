@@ -18,9 +18,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// countBarcodes
+StringVector countBarcodes(std::string inp_fn, std::string out_fn, std::string wl_fn);
+RcppExport SEXP _gscars_countBarcodes(SEXP inp_fnSEXP, SEXP out_fnSEXP, SEXP wl_fnSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type inp_fn(inp_fnSEXP);
+    Rcpp::traits::input_parameter< std::string >::type out_fn(out_fnSEXP);
+    Rcpp::traits::input_parameter< std::string >::type wl_fn(wl_fnSEXP);
+    rcpp_result_gen = Rcpp::wrap(countBarcodes(inp_fn, out_fn, wl_fn));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_gscars_extractMolecules", (DL_FUNC) &_gscars_extractMolecules, 3},
+    {"_gscars_countBarcodes", (DL_FUNC) &_gscars_countBarcodes, 3},
     {NULL, NULL, 0}
 };
 

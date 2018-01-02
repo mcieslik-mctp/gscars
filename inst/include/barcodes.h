@@ -20,7 +20,7 @@ typedef struct {
 	uint32_t unfound;
 } BarcodeDict;
 
-void wl_read(BarcodeDict *bcdict, const char *whitelist_path);
+void wl_read(BarcodeDict *bcdict, FILE *wl_file);
 void wl_dealloc(BarcodeDict *bcdict);
 BarcodeInfo *wl_lookup(BarcodeDict *bcdict, bc_t key);
 int wl_increment(BarcodeDict *bcdict, bc_t key);

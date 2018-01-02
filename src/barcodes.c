@@ -19,17 +19,12 @@ static int bcinfo_cmp(const void *v1, const void *v2) {
 	return (bc1 > bc2) - (bc1 < bc2);
 }
 
-void wl_read(BarcodeDict *bcdict, const char *whitelist_path)
+void wl_read(BarcodeDict *bcdict, FILE *wl_file)
 {
 	char buf[1024];
 
-	FILE *wl_file = fopen(whitelist_path, "r");
-
-	if (wl_file == NULL) {
-		IOERROR(whitelist_path);
-	}
-
 	const size_t n_lines = count_lines(wl_file);
+        
 	size_t wl_size = 0;
 
 	BarcodeInfo *whitelist = safe_malloc(n_lines * sizeof(*whitelist));
@@ -43,7 +38,6 @@ void wl_read(BarcodeDict *bcdict, const char *whitelist_path)
 		++wl_size;
 	}
 
-	fclose(wl_file);
 
 	qsort(whitelist, wl_size, sizeof(*whitelist), bcinfo_cmp);
 

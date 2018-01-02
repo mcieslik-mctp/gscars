@@ -11,3 +11,13 @@ extractMolecules <- function(bam_fn, tagname = "BX", max_dist = 50e4L) {
     .Call('_gscars_extractMolecules', PACKAGE = 'gscars', bam_fn, tagname, max_dist)
 }
 
+#' Extract putative DNA molecules from barcoded BAM file.
+#'
+#' @param inp_file input FQ file
+#' @param out_file output counts file
+#' @param out_file output counts file
+#' @export
+countBarcodes <- function(inp_fn, out_fn, wl_fn) {
+    .Call('_gscars_countBarcodes', PACKAGE = 'gscars', inp_fn, out_fn, wl_fn)
+}
+
