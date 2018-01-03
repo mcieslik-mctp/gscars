@@ -20,6 +20,7 @@ typedef struct {
 	uint32_t unfound;
 } BarcodeDict;
 
+/* misc. bc functions */
 void wl_read(BarcodeDict *bcdict, FILE *wl_file);
 void wl_dealloc(BarcodeDict *bcdict);
 BarcodeInfo *wl_lookup(BarcodeDict *bcdict, bc_t key);
@@ -27,10 +28,16 @@ int wl_increment(BarcodeDict *bcdict, bc_t key);
 void wl_compute_priors(BarcodeDict *bcdict);
 int wl_get_bucket(BarcodeDict *bcdict, BarcodeInfo *bc, const int n_buckets);
 
+/* serialize/deserializes barcode dictionaries */
 void wl_serialize(BarcodeDict *bcdict, FILE *out);
 void wl_deserialize(BarcodeDict *bcdict, FILE *in);
 
-#define BC_CONF_THRESH 0.975
 
+/* barcode correction */
+int correct_barcode(char *barcode, char *barcode_qual, BarcodeDict *wl);
+
+/* corrects barcodes and generate new FASTQs */
+/* This is essentially a translation of Long Ranger's barcode correction scheme. */
+void preprocess_fastqs(const char *cts, const char *inp, const char *out);
 
 #endif /* BARCODES_H */

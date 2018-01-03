@@ -31,10 +31,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// preprocessFastq
+StringVector preprocessFastq(std::string cts_inp_fn, std::string fq1_inp_fn, std::string fq2_inp_fn, std::string fq1_out_fn, std::string fq2_out_fn);
+RcppExport SEXP _gscars_preprocessFastq(SEXP cts_inp_fnSEXP, SEXP fq1_inp_fnSEXP, SEXP fq2_inp_fnSEXP, SEXP fq1_out_fnSEXP, SEXP fq2_out_fnSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< std::string >::type cts_inp_fn(cts_inp_fnSEXP);
+    Rcpp::traits::input_parameter< std::string >::type fq1_inp_fn(fq1_inp_fnSEXP);
+    Rcpp::traits::input_parameter< std::string >::type fq2_inp_fn(fq2_inp_fnSEXP);
+    Rcpp::traits::input_parameter< std::string >::type fq1_out_fn(fq1_out_fnSEXP);
+    Rcpp::traits::input_parameter< std::string >::type fq2_out_fn(fq2_out_fnSEXP);
+    rcpp_result_gen = Rcpp::wrap(preprocessFastq(cts_inp_fn, fq1_inp_fn, fq2_inp_fn, fq1_out_fn, fq2_out_fn));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_gscars_extractMolecules", (DL_FUNC) &_gscars_extractMolecules, 3},
     {"_gscars_countBarcodes", (DL_FUNC) &_gscars_countBarcodes, 3},
+    {"_gscars_preprocessFastq", (DL_FUNC) &_gscars_preprocessFastq, 5},
     {NULL, NULL, 0}
 };
 

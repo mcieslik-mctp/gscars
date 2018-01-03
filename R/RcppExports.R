@@ -11,13 +11,25 @@ extractMolecules <- function(bam_fn, tagname = "BX", max_dist = 50e4L) {
     .Call('_gscars_extractMolecules', PACKAGE = 'gscars', bam_fn, tagname, max_dist)
 }
 
-#' Extract putative DNA molecules from barcoded BAM file.
+#' Count barcodes
 #'
-#' @param inp_file input FQ file
-#' @param out_file output counts file
-#' @param out_file output counts file
+#' @param inp_fn input FQ file
+#' @param out_fn output counts file
+#' @param wl_fn output counts file
 #' @export
 countBarcodes <- function(inp_fn, out_fn, wl_fn) {
     .Call('_gscars_countBarcodes', PACKAGE = 'gscars', inp_fn, out_fn, wl_fn)
+}
+
+#' Preprocess barcoded FASTQ files.
+#'
+#' @param cts_inp_fn input FQ file read 1
+#' @param fq1_inp_fn input FQ file read 1
+#' @param fq2_inp_fn input FQ file read 2
+#' @param fq1_out_fn output FQ file read 1
+#' @param fq2_out_fn output FQ file read 2
+#' @export
+preprocessFastq <- function(cts_inp_fn, fq1_inp_fn, fq2_inp_fn, fq1_out_fn, fq2_out_fn) {
+    .Call('_gscars_preprocessFastq', PACKAGE = 'gscars', cts_inp_fn, fq1_inp_fn, fq2_inp_fn, fq1_out_fn, fq2_out_fn)
 }
 
