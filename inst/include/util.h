@@ -5,19 +5,14 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define IOERROR(filename) \
-	do { \
-		fprintf(stderr, "error: file %s could not be opened\n", (filename)); \
-		exit(EXIT_FAILURE); \
-	} while (0)
-
+#define POW_2_24 (1UL << 24)
+#define HI24(bc) (((bc) & 0xFFFFFF00) >> 8)
 #define SIZE(a) (sizeof(a)/sizeof((a)[0]))
-
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
-
 #define IS_ACGT(c) ((c) == 'A' || (c) == 'C' || (c) == 'G' || (c) == 'T')
 #define EQ(s1, s2) (strcmp((s1), (s2)) == 0)
+
 
 typedef uint32_t bc_t;
 typedef uint8_t chrom_t;

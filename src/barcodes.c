@@ -11,17 +11,6 @@
 
 #include "barcodes.h"
 
-#define POW_2_24 (1UL << 24)
-#define HI24(bc) (((bc) & 0xFFFFFF00) >> 8)
-
-/* barcode min confidence */
-#define BC_CONF_THRESH 0.975
-/* lengths */
-#define BC_LEN		16
-#define MATE1_TRIM	7
-#define BUF_SIZE	1024
-
-
 static int bcinfo_cmp(const void *v1, const void *v2) {
 	const BarcodeInfo *b1 = (BarcodeInfo *)v1;
 	const BarcodeInfo *b2 = (BarcodeInfo *)v2;

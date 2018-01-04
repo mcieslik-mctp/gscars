@@ -2,17 +2,17 @@
 % Please edit documentation in R/RcppExports.R
 \name{countBarcodes}
 \alias{countBarcodes}
-\title{Extract putative DNA molecules from barcoded BAM file.}
+\title{Count barcodes}
 \usage{
 countBarcodes(inp_fn, out_fn, wl_fn)
 }
 \arguments{
-\item{inp_file}{input FQ file}
+\item{inp_fn}{input FQ file}
 
-\item{out_file}{output counts file}
+\item{out_fn}{output counts file}
 
-\item{out_file}{output counts file}
+\item{wl_fn}{output counts file}
 }
 \description{
-Extract putative DNA molecules from barcoded BAM file.
+Count barcodes
 }

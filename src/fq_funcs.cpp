@@ -12,14 +12,11 @@ extern "C"
 {
   
   #include "barcodes.h"
-  #include "preprocess.h"
   #include "seqtk/kseq.h"
   KSEQ_INIT(gzFile, gzread)
   
 }
 
-#define BC_LEN		16
-#define MATE1_TRIM	7
 
 //' Count barcodes
 //'
@@ -30,31 +27,52 @@ extern "C"
 // [[Rcpp::export]]
 StringVector countBarcodes(std::string inp_fn, std::string out_fn, std::string wl_fn) {
 
-  FILE *inp_file = fopen(inp_fn.c_str(), "r");
-  if (inp_file == NULL) {
-    stop("inp_fn could not be opened");
+  if (access(inp_fn.c_str(), F_OK) == -1) {
+    stop("inp_fn could not be opened for reading");
   }
 
   FILE *out_file = fopen(out_fn.c_str(), "wb");
   if (out_file == NULL) {
-    stop("out_fn could not be opened");
+    stop("out_fn could not be opened for writing");
   }
 
-  FILE *wl_file = fopen(wl_fn.c_str(), "r");
-  if (wl_file == NULL) {
-    stop("wl_fn could not be opened");
+  if (access(wl_fn.c_str(), F_OK) == -1) {
+    stop("wl_fn could not be opened for reading");
   }
   
+  FILE *wl_file = fopen(wl_fn.c_str(), "rb");
   BarcodeDict wldict;
   wl_read(&wldict, wl_file);
-  count_barcodes(&wldict, inp_file);
-  wl_serialize(&wldict, out_file);
 
+  // open file handles
+  gzFile inp_file;
+  inp_file = gzopen(inp_fn.c_str(), "rb");
+  kseq_t *ks_inp;
+  ks_inp = kseq_init(inp_file);
+
+  char barcode[BC_LEN+1] = {'\0'};
+  while (kseq_read(ks_inp) >= 0) {
+    for (size_t i = 0; i < BC_LEN; i++) {
+      if (IS_ACGT(ks_inp->seq.s[i])) {
+        barcode[i] = ks_inp->seq.s[i];
+      } else {
+        barcode[0] = '\0';
+        break;
+      }
+    }
+    if (barcode[0] != '\0') {
+      const bc_t bc = encode_bc(barcode);
+      wl_increment(&wldict, bc);
+    }
+  }
+  // count_barcodes(&wldict, inp_file);
+  wl_serialize(&wldict, out_file);
   /* clean-up */
-  fclose(inp_file);
+  kseq_destroy(ks_inp);
+  wl_dealloc(&wldict);
+  gzclose(inp_file);
   fclose(out_file);
   fclose(wl_file);
-  wl_dealloc(&wldict);
   return out_fn;
 }
 
@@ -112,33 +130,42 @@ StringVector preprocessFastq(std::string cts_inp_fn, std::string fq1_inp_fn, std
   char barcode_qual[BC_LEN+1] = {'\0'};
   while ((kseq_read(ks_inp[0]) >= 0) && (kseq_read(ks_inp[1]) >= 0)) {
 
-    
-
-    
     f1 = fq_out[0];
     r1 = ks_inp[0];
-      
+    f2 = fq_out[1];
+    r2 = ks_inp[1];
+
+    if (r1->seq.l < (BC_LEN + MATE1_TRIM + MIN_READ_LEN)) {
+      continue;
+    }
+
+    if (r2->seq.l < (MIN_READ_LEN)) {
+      continue;
+    }
+    
     memcpy(barcode, r1->seq.s, BC_LEN);
     memcpy(barcode_qual, r1->qual.s, BC_LEN);
-      
-    fputc('>', f1);
-    fputs(r1->name.s, f1);
-    fputs(" RX:Z:", f1);
-    fputs(barcode, f1);
-
     const int good_barcode = correct_barcode(barcode, barcode_qual, &wl);
-    fputs(" BX:Z:", f1);
-    fputs(barcode, f1);
 
+    // read1
+    fputc('@', f1);
+    fputs(r1->name.s, f1);
+    fputc('\t', f1); fputs(r1->comment.s, f1);
+    fputs("\tBX:Z:", f1); fputs(barcode, f1); fputs("-1", f1);
+    fputs("\tCX:Z:", f1); fputc(good_barcode ? '1' : '0', f1);
+    fputc('\n', f1); fputs(r1->seq.s+BC_LEN+MATE1_TRIM, f1);
+    fputs("\n+\n", f1); fputs(r1->qual.s+BC_LEN+MATE1_TRIM, f1);
     fputc('\n', f1);
 
-      
-    // fputs(barcode, f);
-    // fputc('\n', f);
-    // fputs("+", f);
-    // fputc('\n', f);
-    // fputs(barcode_qual, f);
-    // fputc('\n', f);
+    // read2
+    fputc('@', f2);
+    fputs(r2->name.s, f2);
+    fputc('\t', f2); fputs(r2->comment.s, f2);
+    fputs("\tBX:Z:", f2); fputs(barcode, f2); fputs("-1", f2);
+    fputs("\tCX:Z:", f2); fputc(good_barcode ? '1' : '0', f2);
+    fputc('\n', f2); fputs(r2->seq.s, f2);
+    fputs("\n+\n", f2); fputs(r2->qual.s, f2);
+    fputc('\n', f2);
       
   }
   
@@ -157,113 +184,3 @@ StringVector preprocessFastq(std::string cts_inp_fn, std::string fq1_inp_fn, std
   res[1] = fq2_out_fn;
   return res;
 }
-
-
-// void count_barcodes(BarcodeDict *bcdict, FILE *fq)
-// {
-
-// 	char barcode[BC_LEN+1];
-// 	char id1[BUF_SIZE];
-// 	char read1[BUF_SIZE];
-// 	char sep1[BUF_SIZE];
-// 	char qual1[BUF_SIZE];
-// 	barcode[BC_LEN] = '\0';
-
-//         char *ret;
-// 	while (fgets(id1, BUF_SIZE, fq)) {
-//                ret = fgets(read1, BUF_SIZE, fq);
-//                assert(ret != NULL);
-// 	       ret = fgets(sep1, BUF_SIZE, fq);
-//                assert(ret != NULL);
-// 	       ret = fgets(qual1, BUF_SIZE, fq);
-//                assert(ret != NULL);
-
-// 		for (size_t i = 0; i < BC_LEN; i++) {
-// 			if (IS_ACGT(read1[i])) {
-// 				barcode[i] = read1[i];
-// 			} else {
-// 				barcode[0] = '\0';
-// 				break;
-// 			}
-// 		}
-// 		if (barcode[0] != '\0') {
-// 			const bc_t bc = encode_bc(barcode);
-// 			wl_increment(bcdict, bc);
-// 		}
-// 	}
-// }
-
-
-// void preprocess_fastqs(const char *cts, const char *inp, const char *out)
-
-// {
-
-//   BarcodeDict wl;
-//   assert(cts != NULL);
-//   FILE *cts_file = fopen(cts, "rb");
-//   if (cts_file == NULL) IOERROR(cts);
-//   wl_deserialize(&wl, cts_file);
-//   fclose(cts_file);
-//   wl_compute_priors(&wl);
-  
-  
-//   FILE *inp_file = (inp==NULL || EQ(inp, "-")) ? stdin : fopen(inp, "r");
-//   if (inp_file == NULL) {
-//     IOERROR(inp);
-//   }
-  
-//   FILE *out_file = (out==NULL) ? stdout : fopen(out, "w");
-//   if (out_file == NULL) {
-//     IOERROR(out);
-//   }
-
-//   char barcode[BC_LEN+1];
-//   char barcode_qual[BC_LEN+1];
-//   char id1[BUF_SIZE];
-//   char read1[BUF_SIZE];
-//   char sep1[BUF_SIZE];
-//   char qual1[BUF_SIZE];
-
-//   barcode[BC_LEN] = '\0';
-//   barcode_qual[BC_LEN] = '\0';
-
-//   char *ret;
-//   while (fgets(id1, BUF_SIZE, inp_file)) {
-//          ret = fgets(read1, BUF_SIZE, inp_file);
-//          assert(ret != NULL);
-//          ret = fgets(sep1, BUF_SIZE, inp_file);
-//          assert(ret != NULL);
-//          ret = fgets(qual1, BUF_SIZE, inp_file);
-//          assert(ret != NULL);
-
-//     trim_after_space(id1);
-
-//     size_t id1_len = strlen(id1);
-//     size_t read1_len = strlen(read1);
-//     size_t qual1_len = strlen(qual1);
-
-//     assert(read1_len == qual1_len);
-//     assert(read1_len > (BC_LEN + MATE1_TRIM));
-
-    
-//     memcpy(barcode, read1, BC_LEN);
-//     memcpy(barcode_qual, qual1, BC_LEN);
-
-//     /* trim off barcode and first MATE1_TRIM bases */
-//     memmove(read1, &read1[BC_LEN + MATE1_TRIM], read1_len - (BC_LEN + MATE1_TRIM) + 1);
-//     memmove(qual1, &qual1[BC_LEN + MATE1_TRIM], qual1_len - (BC_LEN + MATE1_TRIM) + 1);
-
-//     const int good_barcode = correct_barcode(barcode, barcode_qual, &wl);
-
-//     fputs(id1, out_file);
-//     fputs(barcode, out_file);
-//     fputs("\n", out_file);
-//     fputs(read1, out_file);
-//     fputs(sep1, out_file);
-//     fputs(qual1, out_file);
-//   }
-
-//   wl_dealloc(&wl);
-//   fclose(inp_file);
-//   fclose(out_file);
-// }

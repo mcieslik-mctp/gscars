@@ -3,5 +3,6 @@
 export(countBarcodes)
 export(extractMolecules)
 export(extractMolecules2)
+export(preprocessFastq)
 importFrom(Rcpp,sourceCpp)
 useDynLib(gscars)
