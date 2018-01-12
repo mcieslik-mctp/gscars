@@ -1,0 +1,1 @@
+- switch to compressed barcode whitelist

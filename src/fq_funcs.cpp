@@ -150,7 +150,6 @@ StringVector preprocessFastq(std::string cts_inp_fn, std::string fq1_inp_fn, std
     // read1
     fputc('@', f1);
     fputs(r1->name.s, f1);
-    fputc('\t', f1); fputs(r1->comment.s, f1);
     fputs("\tBX:Z:", f1); fputs(barcode, f1); fputs("-1", f1);
     fputs("\tCX:Z:", f1); fputc(good_barcode ? '1' : '0', f1);
     fputc('\n', f1); fputs(r1->seq.s+BC_LEN+MATE1_TRIM, f1);
@@ -160,7 +159,6 @@ StringVector preprocessFastq(std::string cts_inp_fn, std::string fq1_inp_fn, std
     // read2
     fputc('@', f2);
     fputs(r2->name.s, f2);
-    fputc('\t', f2); fputs(r2->comment.s, f2);
     fputs("\tBX:Z:", f2); fputs(barcode, f2); fputs("-1", f2);
     fputs("\tCX:Z:", f2); fputc(good_barcode ? '1' : '0', f2);
     fputc('\n', f2); fputs(r2->seq.s, f2);
