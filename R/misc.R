@@ -1,20 +1,3 @@
-.smooth.outliers <- function(data, chr, pos) {
-    print(pos)
-    obj <- CNA(data, as.integer(factor(chr)), pos,
-              data.type = "logratio",
-              sampleid = "sample")
-    adj <- smooth.CNA(obj)$sample
-    
-}
-
-.smooth.outliers.gr <- function(gr, data.col) {
-    obj <- CNA(mcols(gr)[[data.col]], as.integer(seqnames(gr)), floor((start(gr)+end(gr))/2),
-              data.type = "logratio",
-              sampleid = "sample")
-    adj <- smooth.CNA(obj)$sample
-    return(adj)
-}
-
 .robust.import <- function(fn, seqi, skip.chr=NULL) {
     tmp <- import(fn)
     valid.seql <- setdiff(intersect(seqlevels(tmp), seqlevels(seqi)), skip.chr)
@@ -22,4 +5,28 @@
     seqlevels(tmp) <- seqlevels(seqi)
     seqinfo(tmp) <- seqi
     return(tmp)
+}
+
+.log.sum.exp <- function(x) {
+    offset <- max(x)
+    log(sum(exp(x - offset))) + offset
+}
+
+max.na.rm <- function(x) max(x, na.rm=TRUE)
+
+merge.list <- function (x, y) {
+    if (length(x) == 0) 
+        return(y)
+    if (length(y) == 0) 
+        return(x)
+    i = match(names(y), names(x))
+    i = is.na(i)
+    if (any(i)) 
+        x[names(y)[which(i)]] = y[which(i)]
+    return(x)
+}
+
+.absMedDiff <- function(x, y) {
+    abd <- abs(median(x, na.rm=TRUE)-median(y, na.rm=TRUE))
+    return(abd)
 }

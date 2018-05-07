@@ -1,6 +1,6 @@
-.importVcf <- function(vcf, param) {
+.importVcf <- function(vcf, param, opts) {
     seqi <- keepStandardChromosomes(Seqinfo(genome="hg38"))
-    seqi <- dropSeqlevels(seqi, "chrM")
+    seqi <- dropSeqlevels(seqi, opts$skip.chr)
     var <- readVcf(vcf, param=param)
     shared.levels <- intersect(seqlevels(var), seqlevels(seqi))
     var <- keepSeqlevels(var, shared.levels, pruning.mode="coarse")
@@ -21,19 +21,19 @@
     return(var)
 }
 
-.importVcfVarDict <- function(vcf, which=NULL) {
+.importVcfVarDict <- function(vcf, opts) {
     param <-ScanVcfParam(
         info=c("STATUS", "SOMATIC", "TYPE"),
         geno=c("GT", "AF", "DP", "QUAL")
     )
-    if (!is.null(which)) {
+    if (!is.null(opts$which)) {
         vcfWhich(param) <- which
     }
-    .importVcf(vcf, param)
+    .importVcf(vcf, param, opts)
 }
 
-.importVarDict <- function(vcf, ...) {
-    var <- .importVcfVarDict(vcf, ...)
+.importVarDict <- function(vcf, opts) {
+    var <- .importVcfVarDict(vcf, opts)
     var.gr <- rowRanges(var)
     var.gr$mask.loose <- info(var)$mask.loose
     var.gr$mask.strict <- info(var)$mask.strict
@@ -49,11 +49,11 @@
     return(var.gr)
 }
 
-importVcf <- function(vcf, algorithm="vardict", ...) {
-    if (algorithm=="vardict") {
-        var <- .importVarDict(vcf, ...)
+importVcf <- function(vcf, opts) {
+    if (opts$caller=="vardict") {
+        var <- .importVarDict(vcf, opts)
     } else {
-        stop("agorithm not supported.")
+        stop("Variant caller not supported.")
     }
     return(var)
 }
