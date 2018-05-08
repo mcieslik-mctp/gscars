@@ -39,6 +39,20 @@
     return(x)
 }
 
+.llik.rC.p.D.wrap <- function(rC, p, D, max.sC, max.len.per.probe) {
+    x <- .llik.rC.p.D.best(rC, p, D, max.sC, max.len.per.probe)
+    ## result
+    y <- list(
+        L1 = x[(hq), sum(ifelse(subc, unif, norm))], ## segment likelihood
+        S1 = x[(hq), weighted.mean(subc, len)], ## proportion subclonal
+        D1 = x[(hq),      p[1]  * weighted.mean(ifelse(subc, sC, C), len) +
+                     (1 - p[1]) * weighted.mean(nC, len)], ## total ploidy
+        p0 = p, D0 = D
+    )
+    return(y)
+}
+
+
 ## .llik.full <- function(data, pi, Di, maxC) {
 ##     rC <- .grid.rC(data$seg, data$lr, data$sd, data$len, maxC)
 ##     CL <- rbindlist(mclapply(seq_len(length(pi)), function(i) {

@@ -24,19 +24,6 @@
 }
 
 ## inner likelihood function
-.lr.grid.llik <- function(rC, pi, Di, max.sC, max.len.per.probe) {
-    x <- .llik.rC.p.D.best(rC, pi, Di, max.sC, max.len.per.probe)
-    ## result
-    y <- list(
-        L1 = x[(hq), sum(ifelse(subc, unif, norm))], ## segment likelihood
-        S1 = x[(hq), weighted.mean(subc, len)], ## proportion subclonal
-        D1 = x[(hq),      pi  * weighted.mean(ifelse(subc, sC, C), len) +
-                     (1 - pi) * weighted.mean(nC, len)], ## total ploidy
-        p0 = pi, D0 = Di
-    )
-    return(y)
-}
-
 lrGrid <- function(data, opts) {
     rC <- .lr.grid.rC(data$seg, data$lr, data$sd, data$len, data$nC, opts$max.C)
     pD <- .lr.grid.pD(opts$grid.n, opts$p.lo, opts$p.hi, opts$D.lo, opts$D.hi)
