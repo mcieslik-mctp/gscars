@@ -10,7 +10,7 @@ getCand <- function(grid, opts) {
     return(cand)
 }
 
-fixCand <- function(data, cand, grid.n=11, p.offset=0.025, lr.offset=0.1, max.sC=20, max.len.per.probe=1e6) {
+fixCand <- function(data, cand, grid.n=11, p.offset=0.05, lr.offset=0.2, max.C=9, max.sC=20, max.len.per.probe=1e6) {
     rC <- .lr.grid.rC(data$seg, data$lr, data$sd, data$len, data$nC, max.C)
     cand.opt <- rbindlist(lapply(seq_len(nrow(cand)), function(i) {
         #### pD candidate

@@ -28,7 +28,7 @@ lrGrid <- function(data, opts) {
     rC <- .lr.grid.rC(data$seg, data$lr, data$sd, data$len, data$nC, opts$max.C)
     pD <- .lr.grid.pD(opts$grid.n, opts$p.lo, opts$p.hi, opts$D.lo, opts$D.hi)
     grid <- rbindlist(mclapply(seq_len(nrow(pD)), function(i) {
-        .lr.grid.llik(rC, pD[i,1], pD[i,2], opts$max.sC, opts$max.len.per.probe)
+        .llik.rC.p.D.wrap(rC, pD[i,1], pD[i,2], opts$max.sC, opts$max.len.per.probe)
     }, mc.cores=detectCores()))
     return(grid)
 }

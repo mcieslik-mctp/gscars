@@ -8,13 +8,6 @@
     log(1/(floor((C)/2) + e))
 }
 
-
-.baf.data <- function(sts) {
-    tmp <- as.data.table(mcols(sts$snp)[,c("t.AF", "t.DP", "seg")])
-    tmp[,idx:=1:nrow(tmp)]
-    return(tmp)
-}
-
 .beta.grid <- function(p, D, Cmax) {
     beta.grid <- as.data.table(expand.grid(M=0:Cmax,C=0:Cmax))[M<=C]
     beta.grid[,":="(
